@@ -3,7 +3,7 @@ const User = require('../models/User.js');
 const Role = require('../models/Role.js');
 
 exports.createUser = async (req, res) => {
-    const { name, email, password, roles } = req.body;
+    const { name, email, password, roles, token } = req.body;
 
     try {
         let user = await User.findOne({ email });
@@ -16,7 +16,8 @@ exports.createUser = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            roles
+            roles,
+            token
         });
 
         await user.save();
@@ -92,13 +93,22 @@ exports.assignRoles = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
     try {
-        const users = await User.find().populate('roles');
+        // Fetch users and populate the 'roles' field from the Role model
+        const users = await User.find().populate('roles', 'name'); // Assuming 'roles' field exists in User schema and it is linked to Role schema.
+
+        // If no users found, return a message
+        if (users.length === 0) {
+            return res.status(404).json({ msg: 'No users found' });
+        }
+
+        // Return the users with a success status
         res.status(200).json(users);
     } catch (err) {
-        console.error(err.message);
+        console.error('Error fetching users:', err.message);
         res.status(500).json({ msg: 'Server error' });
     }
 };
+
 
 exports.getUserById = async (req, res) => {
     try {
