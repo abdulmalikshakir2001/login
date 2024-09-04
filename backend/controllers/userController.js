@@ -3,7 +3,7 @@ const User = require('../models/User.js');
 const Role = require('../models/Role.js');
 
 exports.createUser = async (req, res) => {
-    const { name, email, password, roles, token } = req.body;
+    const { name, email, password, roles } = req.body;
 
     try {
         let user = await User.findOne({ email });
@@ -16,8 +16,7 @@ exports.createUser = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            roles,
-            token
+            roles
         });
 
         await user.save();
