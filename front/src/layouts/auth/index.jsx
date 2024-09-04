@@ -1,8 +1,13 @@
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import SignIn from "../../views/auth/SignIn";
+import Register from "../../views/auth/Registration"; // Import the Register component
 import Footer from "components/footer/FooterAuthDefault";
 import authImg from "assets/img/auth/auth.png";
-import { Link, Routes, Route, Navigate } from "react-router-dom";
 import routes from "routes.js";
 import FixedPlugin from "components/fixedPlugin/FixedPlugin";
+import { Link } from "react-router-dom";
+
 
 export default function Auth() {
   const getRoutes = (routes) => {
@@ -46,10 +51,9 @@ export default function Auth() {
                 </Link>
                 <Routes>
                   {getRoutes(routes)}
-                  <Route
-                    path="/"
-                    element={<Navigate to="/auth/sign-in" replace />}
-                  />
+                  <Route path="/sign-in" element={<SignIn />} />
+                  <Route path="/register" element={<Register />} /> {/* Add the Register route */}
+                  <Route path="*" element={<Navigate to="sign-in" replace />} /> {/* Redirect unknown paths */}
                 </Routes>
                 <div className="absolute right-0 hidden h-full min-h-screen md:block lg:w-[49vw] 2xl:w-[44vw]">
                   <div

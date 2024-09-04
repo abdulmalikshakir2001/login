@@ -18,8 +18,8 @@ const FreeCard = () => {
             fill="white"
           />
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"  // Corrected to camelCase
+            clipRule="evenodd"  // Corrected to camelCase
             d="M20.5 31.989C26.8452 31.989 31.989 26.8452 31.989 20.5C31.989 14.1548 26.8452 9.01099 20.5 9.01099C14.1548 9.01099 9.01099 14.1548 9.01099 20.5C9.01099 26.8452 14.1548 31.989 20.5 31.989ZM20.5 41C31.8218 41 41 31.8218 41 20.5C41 9.17816 31.8218 0 20.5 0C9.17816 0 0 9.17816 0 20.5C0 31.8218 9.17816 41 20.5 41Z"
             fill="white"
           />
@@ -29,13 +29,12 @@ const FreeCard = () => {
       <div className="mt-16 flex h-fit flex-col items-center">
         <p className="text-lg font-bold text-white">Upgrade to PRO</p>
         <p className="mt-1 px-4 text-center text-sm text-white">
-          Improve your development process and start doing more with Horizon UI
-          PRO!
+          Improve your development process and start doing more with Horizon UI PRO!
         </p>
 
         <a
           target="blank"
-          className="text-medium mt-7 block rounded-full bg-gradient-to-b from-white/50 to-white/10 py-[12px] px-11 text-center text-base text-white hover:bg-gradient-to-b hover:from-white/40 hover:to-white/5 "
+          className="text-medium mt-7 block rounded-full bg-gradient-to-b from-white/50 to-white/10 py-[12px] px-11 text-center text-base text-white hover:bg-gradient-to-b hover:from-white/40 hover:to-white/5"
           href="https://horizon-ui.com/pro?ref=live-free-tailwind-react"
         >
           Upgrade to PRO

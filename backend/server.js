@@ -1,12 +1,20 @@
 const express = require('express');
-const connectDB = require('./config/db.js'); 
+const connectDB = require('./config/db.js');
 require('dotenv').config();
-const cookieParser = require('cookie-parser'); 
+const cookieParser = require('cookie-parser');
 const errorHandler = require('./utils/errorHandler.js');
+const cors = require('cors'); // Import cors
 
 const app = express();
 
 connectDB();
+
+// Use CORS with default options for all routes
+// This will allow all cross-origin requests
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 
 app.use(express.json());
 

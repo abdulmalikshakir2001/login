@@ -5,13 +5,13 @@ import Nft3 from "assets/img/nfts/Nft3.png";
 import Nft4 from "assets/img/nfts/Nft4.png";
 import Nft5 from "assets/img/nfts/Nft5.png";
 import Nft6 from "assets/img/nfts/Nft6.png";
-
 import { FaEthereum } from "react-icons/fa";
 import Card from "components/card";
 
 const HistoryCard = () => {
   const HistoryData = [
     {
+      id: 1,  // Add unique id for each item
       image: Nft1,
       title: "Colorful Heaven",
       owner: "Mark Benjamin",
@@ -19,6 +19,7 @@ const HistoryCard = () => {
       time: "30s",
     },
     {
+      id: 2,
       image: Nft2,
       title: "Abstract Colors",
       owner: "Esthera Jackson",
@@ -26,6 +27,7 @@ const HistoryCard = () => {
       time: "50m",
     },
     {
+      id: 3,
       image: Nft3,
       title: "ETH AI Brain",
       owner: "Nick Wilson",
@@ -33,13 +35,15 @@ const HistoryCard = () => {
       time: "20s",
     },
     {
+      id: 4,
       image: Nft4,
       title: "Swipe Circles",
-      owner: " Peter Will",
+      owner: "Peter Will",
       price: 0.4,
       time: "4h",
     },
     {
+      id: 5,
       image: Nft5,
       title: "Mesh Gradients",
       owner: "Will Smith",
@@ -47,9 +51,10 @@ const HistoryCard = () => {
       time: "30s",
     },
     {
+      id: 6,
       image: Nft6,
       title: "3D Cubes Art",
-      owner: " Manny Gates",
+      owner: "Manny Gates",
       price: 0.4,
       time: "2m",
     },
@@ -68,25 +73,25 @@ const HistoryCard = () => {
       </div>
 
       {/* History CardData */}
-
-      {HistoryData.map((data, index) => (
-        <div className="flex h-full w-full items-start justify-between bg-white px-3 py-[20px] hover:shadow-2xl dark:!bg-navy-800 dark:shadow-none dark:hover:!bg-navy-700">
+      {HistoryData.map((data) => (
+        <div
+          key={data.id}  // Unique key added here
+          className="flex h-full w-full items-start justify-between bg-white px-3 py-[20px] hover:shadow-2xl dark:!bg-navy-800 dark:shadow-none dark:hover:!bg-navy-700"
+        >
           <div className="flex items-center gap-3">
             <div className="flex h-16 w-16 items-center justify-center">
               <img
                 className="h-full w-full rounded-xl"
                 src={data.image}
-                alt=""
+                alt={data.title}
               />
             </div>
             <div className="flex flex-col">
               <h5 className="text-base font-bold text-navy-700 dark:text-white">
-                {" "}
                 {data.title}
               </h5>
               <p className="mt-1 text-sm font-normal text-gray-600">
-                {" "}
-                {data.owner}{" "}
+                {data.owner}
               </p>
             </div>
           </div>
@@ -96,7 +101,6 @@ const HistoryCard = () => {
               <FaEthereum />
             </div>
             <div className="ml-1 flex items-center text-sm font-bold text-navy-700 dark:text-white">
-              <p> {} </p>
               {data.price} <p className="ml-1">ETH</p>
             </div>
             <div className="ml-2 flex items-center text-sm font-normal text-gray-600 dark:text-white">

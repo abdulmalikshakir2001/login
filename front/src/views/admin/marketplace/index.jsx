@@ -30,7 +30,7 @@ const Marketplace = () => {
             <li>
               <a
                 className="text-base font-medium text-brand-500 hover:text-brand-500 dark:text-white"
-                href=" "
+                href="#art"
               >
                 Art
               </a>
@@ -38,7 +38,7 @@ const Marketplace = () => {
             <li>
               <a
                 className="text-base font-medium text-brand-500 hover:text-brand-500 dark:text-white"
-                href=" "
+                href="#music"
               >
                 Music
               </a>
@@ -46,7 +46,7 @@ const Marketplace = () => {
             <li>
               <a
                 className="text-base font-medium text-brand-500 hover:text-brand-500 dark:text-white"
-                href=" "
+                href="#collection"
               >
                 Collection
               </a>
@@ -54,9 +54,9 @@ const Marketplace = () => {
             <li>
               <a
                 className="text-base font-medium text-brand-500 hover:text-brand-500 dark:text-white"
-                href=" "
+                href="#sports"
               >
-                <a href=" ">Sports</a>
+                Sports
               </a>
             </li>
           </ul>
@@ -87,14 +87,14 @@ const Marketplace = () => {
           />
         </div>
 
-        {/* Recenlty Added setion */}
+        {/* Recently Added section */}
         <div className="mb-5 mt-5 flex items-center justify-between px-[26px]">
           <h4 className="text-2xl font-bold text-navy-700 dark:text-white">
             Recently Added
           </h4>
         </div>
 
-        {/* Recently Add NFTs */}
+        {/* Recently Added NFTs */}
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
           <NftCard
             bidders={[avatar1, avatar2, avatar3]}
@@ -121,7 +121,6 @@ const Marketplace = () => {
       </div>
 
       {/* right side section */}
-
       <div className="col-span-1 h-full w-full rounded-xl 2xl:col-span-1">
         <TopCreatorTable
           extra="mb-5"

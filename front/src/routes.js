@@ -13,11 +13,13 @@ import SignIn from "views/auth/SignIn";
 // Icon Imports
 import {
   MdHome,
-  MdOutlineShoppingCart,
+  MdGroup,
   MdBarChart,
   MdPerson,
   MdLock,
-} from "react-icons/md";
+  MdVerifiedUser,
+  MdSecurity,
+} from "react-icons/md"; // Added MdVerifiedUser and MdSecurity for nested routes
 
 const routes = [
   {
@@ -28,12 +30,35 @@ const routes = [
     component: <MainDashboard />,
   },
   {
-    name: "NFT Marketplace",
+    name: "User Management",
     layout: "/admin",
-    path: "nft-marketplace",
-    icon: <MdOutlineShoppingCart className="h-6 w-6" />,
-    component: <NFTMarketplace />,
+    path: "user-management",
+    icon: <MdGroup className="h-6 w-6" />, // User Management Icon
+    component: <NFTMarketplace />, // Parent Component for User Management
     secondary: true,
+    children: [
+      {
+        name: "Roles",
+        layout: "/admin",
+        path: "roles",
+        icon: <MdVerifiedUser className="h-6 w-6" />, // Icon for Roles
+        component: <NFTMarketplace />, // Replace with actual component for Roles
+      },
+      {
+        name: "Permissions",
+        layout: "/admin",
+        path: "permissions",
+        icon: <MdSecurity className="h-6 w-6" />, // Icon for Permissions
+        component: <NFTMarketplace />, // Replace with actual component for Permissions
+      },
+      {
+        name: "Users",
+        layout: "/admin",
+        path: "users",
+        icon: <MdPerson className="h-6 w-6" />, // Icon for Users
+        component: <NFTMarketplace />, // Replace with actual component for Users
+      },
+    ],
   },
   {
     name: "Data Tables",
@@ -64,4 +89,5 @@ const routes = [
     component: <RTLDefault />,
   },
 ];
+
 export default routes;
