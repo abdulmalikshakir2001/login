@@ -36,19 +36,22 @@ exports.createUser = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
-    const { userId, name, email, roles } = req.body;
+    const { name, email, roles } = req.body; // Only these should be in the body
+    const { id } = req.params;  // Get user ID from URL params
 
     try {
-        let user = await User.findById(userId);
+        let user = await User.findById(id);  // Find the user by the ID from the URL
         if (!user) {
             return res.status(404).json({ msg: 'User not found' });
         }
 
+        // Update user details
         user.name = name || user.name;
         user.email = email || user.email;
         user.roles = roles || user.roles;
 
-        await user.save();
+        await user.save();  // Save the updated user
+
         res.status(200).json({
             msg: 'User updated successfully',
             user: {
@@ -63,6 +66,7 @@ exports.updateUser = async (req, res) => {
         res.status(500).json({ msg: 'Server error' });
     }
 };
+
 
 exports.assignRoles = async (req, res) => {
     const { userId, roles } = req.body;
@@ -124,15 +128,22 @@ exports.getUserById = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
-        if (!user) {
-            return res.status(404).json({ msg: 'User not found' });
-        }
-
-        await user.remove();
-        res.status(200).json({ msg: 'User removed' });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ msg: 'Server error' });
+      const { id } = req.params; // Get the user ID from the URL parameters
+      console.log(`Attempting to delete user with ID: ${id}`);
+  
+      const user = await User.findById(id); // Find the user by ID
+      if (!user) {
+        console.log(`User with ID ${id} not found.`);
+        return res.status(404).json({ message: 'User not found' }); // If user not found, return 404
+      }
+  
+      await User.findByIdAndDelete(id); // Use findByIdAndDelete to delete the user
+      
+      return res.status(200).json({ message: 'User deleted successfully', id }); // Return success message and user ID
+    } catch (error) {
+      console.error('Error deleting user:', error.message);
+      return res.status(500).json({ message: 'Server error' }); // Catch any errors and return server error
     }
-};
+  };
+  
+  

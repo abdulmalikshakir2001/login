@@ -17,7 +17,7 @@ const authMiddleware = require('../middleware/authMiddleware.js');
 router.post('/create', authMiddleware, validateUserRegistration, handleValidationErrors, createUser);
 
 // Update an existing user
-router.put('/update', authMiddleware, updateUser);
+router.put('/update/:id', authMiddleware, updateUser);
 
 // Assign roles to a user
 router.put('/assign-roles', authMiddleware, assignRoles);
