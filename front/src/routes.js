@@ -22,6 +22,7 @@ import {
 } from "react-icons/md";
 import Users from "views/admin/marketplace/Users";
 import Role from "views/admin/marketplace/Roles";
+import Permission from "views/admin/marketplace/Permissions";
 
 const routes = [
   {
@@ -51,7 +52,7 @@ const routes = [
     layout: "/admin",
     path: "permissions",
     icon: <MdSecurity className="h-6 w-6" />,
-    component: <NFTMarketplace />, // Can be removed since nested in NFTMarketplace
+    component: <Permission />, // Can be removed since nested in NFTMarketplace
   },
   {
     name: "Roles",
@@ -59,6 +60,13 @@ const routes = [
     path: "roles",
     icon: <MdVerifiedUser className="h-6 w-6" />,
     component: <Role />, // Can be removed since nested in NFTMarketplace
+  },
+  {
+    name: "NFTMarketplace",
+    layout: "/admin",
+    path: "nftmarketplace",
+    icon: <MdSecurity className="h-6 w-6" />,
+    component: <NFTMarketplace />, // Can be removed since nested in NFTMarketplace
   },
   {
     name: "Data Tables",
