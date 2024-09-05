@@ -102,9 +102,20 @@ const Users = () => {
 
     const handleCreateUser = (e) => {
         e.preventDefault();
-        dispatch(createUser(newUser)).then(() => {
+    
+        const formData = {
+            name: newUser.name,
+            email: newUser.email,
+            password: newUser.password,
+            roles: newUser.roles ? [newUser.roles] : [], // Assuming roles is a single value
+        };
+    
+        console.log('Form Data:', formData); // Log form data for verification
+    
+        dispatch(createUser(formData)).then(() => {
             setIsCreating(false); // Close the modal after creation
-            dispatch(fetchUsers()); // Fetch updated users after creation
+            dispatch(fetchUsers()); // Refetch users after creation
+            setNewUser({ name: '', email: '', password: '', roles: '' }); // Clear form after submit
         });
     };
 
