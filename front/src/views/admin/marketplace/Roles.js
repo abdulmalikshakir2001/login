@@ -46,7 +46,17 @@ const Role = () => {
 
   const handleCreateRole = async () => {
     try {
-      await dispatch(createRole(newRole)).unwrap();
+      const formattedRoleData = {
+        name: newRole.name,
+        permissions: Object.keys(newRole.permissions).reduce((acc, module) => {
+          const selectedPermissions = Object.keys(newRole.permissions[module]).filter((perm) => newRole.permissions[module][perm]);
+          if (selectedPermissions.length > 0) {
+            acc[module] = selectedPermissions;
+          }
+          return acc;
+        }, {}),
+      };
+      await dispatch(createRole(formattedRoleData)).unwrap();
       dispatch(fetchRoles());
       setIsCreating(false);
       setNewRole({ name: '', permissions: {} });
@@ -63,7 +73,18 @@ const Role = () => {
 
   const handleUpdateRole = async () => {
     try {
-      await dispatch(updateRole({ roleId: selectedRole._id, roleData: newRole })).unwrap();
+      const updatedRoleData = {
+        name: newRole.name,
+        permissions: Object.keys(newRole.permissions).reduce((acc, module) => {
+          // Flatten the permissions for each module
+          acc.push(...Object.keys(newRole.permissions[module]).filter((perm) => newRole.permissions[module][perm]));
+          return acc;
+        }, [])
+      };
+
+      // Ensure roleId and the payload structure are correct
+      await dispatch(updateRole({ roleId: selectedRole._id, roleData: updatedRoleData })).unwrap();
+      
       dispatch(fetchRoles());
       setIsEditing(false);
       setNewRole({ name: '', permissions: {} });
@@ -71,7 +92,8 @@ const Role = () => {
     } catch (err) {
       console.error('Error updating role:', err);
     }
-  };
+};
+
 
   const handleDeleteRole = async (roleId) => {
     if (window.confirm('Are you sure you want to delete this role?')) {
@@ -120,16 +142,14 @@ const Role = () => {
                   {Object.keys(role.permissions).map((module) => (
                     <div key={module}>
                       <strong>{module}: </strong>
-                      {Object.keys(role.permissions[module])
-                        .filter((perm) => role.permissions[module][perm])
-                        .map((perm) => (
-                          <span
-                            key={perm}
-                            className="bg-green-100 text-green-700 rounded-full px-2 py-1 text-sm m-1"
-                          >
-                            {perm}
-                          </span>
-                        ))}
+                      {role.permissions[module].map((perm) => (
+                        <span
+                          key={perm}
+                          className="bg-green-100 text-green-700 rounded-full px-2 py-1 text-sm m-1"
+                        >
+                          {perm}
+                        </span>
+                      ))}
                     </div>
                   ))}
                 </td>

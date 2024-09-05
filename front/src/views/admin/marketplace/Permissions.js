@@ -7,6 +7,7 @@ import {
     updatePermission,
     deletePermission,
 } from 'features/permission/permissionSlice';
+import Modal from './Modal'; // Assuming Modal is in the same folder
 
 const Permission = () => {
     const dispatch = useDispatch();
@@ -14,19 +15,19 @@ const Permission = () => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [permissionToDelete, setPermissionToDelete] = useState(null);
     const [selectedPermission, setSelectedPermission] = useState(null);
     const [newPermission, setNewPermission] = useState({ name: '', modules: [] });
 
-    const availableModules = ['User', 'Admin', 'Project', 'Product']; // Hardcoded modules, replace with backend call if needed
+    const availableModules = ['User', 'Admin', 'Project', 'Product']; 
 
-    // Fetch permissions when the component mounts
     useEffect(() => {
         if (status === 'idle') {
             dispatch(fetchPermissions());
         }
     }, [dispatch, status]);
 
-    // Handle permission creation
     const handleCreatePermission = async (e) => {
         e.preventDefault();
         try {
@@ -45,7 +46,6 @@ const Permission = () => {
         setIsEditing(true);
     };
 
-    // Handle permission update
     const handleUpdatePermission = async (e) => {
         e.preventDefault();
         try {
@@ -59,15 +59,25 @@ const Permission = () => {
         }
     };
 
-    const handleDeletePermission = async (permissionId) => {
-        if (window.confirm('Are you sure you want to delete this permission?')) {
-            try {
-                await dispatch(deletePermission(permissionId)).unwrap(); 
-                dispatch(fetchPermissions());
-            } catch (err) {
-                console.error('Error deleting permission:', err);
-            }
+    const handleDeletePermission = async () => {
+        try {
+            await dispatch(deletePermission(permissionToDelete)).unwrap(); 
+            dispatch(fetchPermissions());
+            setShowDeleteModal(false); // Close the modal after deletion
+            setPermissionToDelete(null); // Clear selected permission to delete
+        } catch (err) {
+            console.error('Error deleting permission:', err);
         }
+    };
+
+    const openDeleteModal = (permissionId) => {
+        setPermissionToDelete(permissionId);
+        setShowDeleteModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowDeleteModal(false);
+        setPermissionToDelete(null);
     };
 
     const handleModuleChange = (module) => {
@@ -120,7 +130,7 @@ const Permission = () => {
                                     </button>
                                     <button
                                         className="text-red-500 mx-2"
-                                        onClick={() => handleDeletePermission(permission._id)}
+                                        onClick={() => openDeleteModal(permission._id)}
                                     >
                                         <FaTrash />
                                     </button>
@@ -137,6 +147,7 @@ const Permission = () => {
                 </tbody>
             </table>
 
+            {/* Create/Edit Permission Modal */}
             {(isCreating || isEditing) && (
                 <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
@@ -196,6 +207,19 @@ const Permission = () => {
                         </form>
                     </div>
                 </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <Modal
+                    title="Confirm Delete"
+                    onConfirm={handleDeletePermission}
+                    onClose={handleCloseModal}
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                >
+                    <p>Are you sure you want to delete this permission?</p>
+                </Modal>
             )}
 
             {error && (
