@@ -21,6 +21,7 @@ import {
   MdSecurity,
 } from "react-icons/md";
 import Users from "views/admin/marketplace/Users";
+import Role from "views/admin/marketplace/Roles";
 
 const routes = [
   {
@@ -35,7 +36,7 @@ const routes = [
     layout: "/admin",
     path: "user-management/*", // Updated to handle nested routes
     icon: <MdGroup className="h-6 w-6" />,
-    component: <NFTMarketplace />, // Parent component for User Management
+    component: <Users />, // Parent component for User Management
     secondary: true,
   },
   {
@@ -57,7 +58,7 @@ const routes = [
     layout: "/admin",
     path: "roles",
     icon: <MdVerifiedUser className="h-6 w-6" />,
-    component: <NFTMarketplace />, // Can be removed since nested in NFTMarketplace
+    component: <Role />, // Can be removed since nested in NFTMarketplace
   },
   {
     name: "Data Tables",
