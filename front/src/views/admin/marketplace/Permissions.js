@@ -15,7 +15,9 @@ const Permission = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [selectedPermission, setSelectedPermission] = useState(null);
-    const [newPermission, setNewPermission] = useState({ name: '', module: '' });
+    const [newPermission, setNewPermission] = useState({ name: '', modules: [] });
+
+    const availableModules = ['User', 'Admin', 'Project', 'Product']; // Hardcoded modules, replace with backend call if needed
 
     // Fetch permissions when the component mounts
     useEffect(() => {
@@ -24,50 +26,57 @@ const Permission = () => {
         }
     }, [dispatch, status]);
 
-    // Handle creating a new permission
+    // Handle permission creation
     const handleCreatePermission = async (e) => {
         e.preventDefault();
         try {
-            await dispatch(createPermission(newPermission)).unwrap(); // Create new permission
-            dispatch(fetchPermissions()); // Fetch updated permissions after creation
+            await dispatch(createPermission(newPermission)).unwrap(); 
+            dispatch(fetchPermissions());
             setIsCreating(false);
-            setNewPermission({ name: '', module: '' });
+            setNewPermission({ name: '', modules: [] });
         } catch (err) {
             console.error('Error creating permission:', err);
         }
     };
 
-    // Handle editing an existing permission
     const handleEditPermission = (permission) => {
         setSelectedPermission(permission);
         setNewPermission({ ...permission });
         setIsEditing(true);
     };
 
-    // Handle updating a permission
+    // Handle permission update
     const handleUpdatePermission = async (e) => {
         e.preventDefault();
         try {
             await dispatch(updatePermission({ permissionId: selectedPermission._id, permissionData: newPermission })).unwrap();
-            dispatch(fetchPermissions()); // Fetch updated permissions after updating
+            dispatch(fetchPermissions());
             setIsEditing(false);
-            setNewPermission({ name: '', module: '' });
+            setNewPermission({ name: '', modules: [] });
             setSelectedPermission(null);
         } catch (err) {
             console.error('Error updating permission:', err);
         }
     };
 
-    // Handle deleting a permission
     const handleDeletePermission = async (permissionId) => {
         if (window.confirm('Are you sure you want to delete this permission?')) {
             try {
-                await dispatch(deletePermission(permissionId)).unwrap(); // Delete permission
-                dispatch(fetchPermissions()); // Fetch updated permissions after deletion
+                await dispatch(deletePermission(permissionId)).unwrap(); 
+                dispatch(fetchPermissions());
             } catch (err) {
                 console.error('Error deleting permission:', err);
             }
         }
+    };
+
+    const handleModuleChange = (module) => {
+        setNewPermission((prev) => ({
+            ...prev,
+            modules: prev.modules.includes(module)
+                ? prev.modules.filter((mod) => mod !== module)
+                : [...prev.modules, module],
+        }));
     };
 
     return (
@@ -82,12 +91,11 @@ const Permission = () => {
                 </button>
             </div>
 
-            {/* Permission List */}
             <table className="min-w-full bg-white">
                 <thead>
                     <tr>
                         <th className="py-2 px-4">Permission Name</th>
-                        <th className="py-2 px-4">Module</th>
+                        <th className="py-2 px-4">Modules</th>
                         <th className="py-2 px-4">Actions</th>
                     </tr>
                 </thead>
@@ -102,7 +110,7 @@ const Permission = () => {
                         permissions.map((permission, index) => (
                             <tr key={permission._id || index} className="border-b">
                                 <td className="py-2 px-4">{permission.name}</td>
-                                <td className="py-2 px-4">{permission.module}</td>
+                                <td className="py-2 px-4">{permission.modules?.join(', ') || 'No Modules'}</td>
                                 <td className="py-2 px-4">
                                     <button
                                         className="text-blue-500 mx-2"
@@ -127,10 +135,8 @@ const Permission = () => {
                         </tr>
                     )}
                 </tbody>
-
             </table>
 
-            {/* Create/Edit Permission Modal */}
             {(isCreating || isEditing) && (
                 <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
@@ -150,26 +156,29 @@ const Permission = () => {
                                     required
                                 />
                             </div>
+
+                            {/* Modules Selector */}
                             <div className="mb-4">
-                                <label className="block text-gray-700">Module</label>
-                                <input
-                                    type="text"
-                                    value={newPermission.module}
-                                    onChange={(e) =>
-                                        setNewPermission({ ...newPermission, module: e.target.value })
-                                    }
-                                    className="w-full p-2 border rounded"
-                                    required
-                                />
+                                <label className="block text-gray-700">Modules</label>
+                                {availableModules.map((module) => (
+                                    <div key={module} className="flex items-center mb-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={newPermission.modules.includes(module)}
+                                            onChange={() => handleModuleChange(module)}
+                                            className="mr-2"
+                                        />
+                                        <span>{module}</span>
+                                    </div>
+                                ))}
                             </div>
 
-                            {/* Modal Action Buttons */}
                             <div className="flex justify-end mt-4">
                                 <button
                                     onClick={() => {
                                         setIsCreating(false);
                                         setIsEditing(false);
-                                        setNewPermission({ name: '', module: '' });
+                                        setNewPermission({ name: '', modules: [] });
                                         setSelectedPermission(null);
                                     }}
                                     type="button"
@@ -189,7 +198,6 @@ const Permission = () => {
                 </div>
             )}
 
-            {/* Error Display */}
             {error && (
                 <div className="mt-4 p-4 bg-red-100 text-red-500">
                     Error: {error}

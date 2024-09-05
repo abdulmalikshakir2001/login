@@ -7,8 +7,8 @@ const PermissionSchema = new Schema({
         required: true,
         unique: true
     },
-    module: {
-        type: String,
+    modules: { // Changed from 'module' to 'modules' and made it an array
+        type: [String], // This will hold an array of module names
         required: true
     },
     created_at: {

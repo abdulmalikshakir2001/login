@@ -26,18 +26,17 @@ exports.createPermission = async (req, res) => {
 };
 
 exports.updatePermission = async (req, res) => {
-    const { name, module } = req.body;
-    const { id } = req.params;  // Use `req.params.id` to get the permission ID from the URL
+    const { name, modules } = req.body;
+    const { id } = req.params;  
 
     try {
-        let permission = await Permission.findById(id);  // Fetch by `id`
+        let permission = await Permission.findById(id);  
         if (!permission) {
             return res.status(404).json({ msg: 'Permission not found' });
         }
 
-        // Update the permission details
         permission.name = name || permission.name;
-        permission.module = module || permission.module;
+        permission.modules = modules || permission.modules; // Update the array of modules
 
         await permission.save();
         res.status(200).json({
@@ -49,6 +48,7 @@ exports.updatePermission = async (req, res) => {
         res.status(500).json({ msg: 'Server error' });
     }
 };
+
 
 
 exports.getPermissions = async (req, res) => {
@@ -81,7 +81,6 @@ exports.deletePermission = async (req, res) => {
             return res.status(404).json({ msg: 'Permission not found' });
         }
 
-        // Use findByIdAndDelete to delete the document
         await Permission.findByIdAndDelete(req.params.id);
 
         res.status(200).json({ msg: 'Permission removed' });

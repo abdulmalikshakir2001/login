@@ -8,33 +8,26 @@ import { Link, useNavigate } from 'react-router-dom';
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [formError, setFormError] = useState(""); // Local state for form validation errors
+  const [formError, setFormError] = useState("");
 
   const dispatch = useDispatch();
   const { status, error, user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
-  // Redirect to the dashboard or another page if the user is authenticated
   useEffect(() => {
     if (user) {
-      navigate("/admin/dashboard"); // Change to your desired path after sign-in
+      navigate("/admin/dashboard"); 
     }
   }, [user, navigate]);
 
-  // Handle form submission
   const handleSignIn = (e) => {
     e.preventDefault();
 
-    // Validate form fields
     if (!email || !password) {
       setFormError("Both email and password are required");
       return;
     }
-
-    // Clear form errors before submitting
     setFormError("");
-
-    // Dispatch the signIn action with form data
     dispatch(signIn({ email, password }));
   };
 

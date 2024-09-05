@@ -1,46 +1,79 @@
-// src/features/role/roleSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from '../../api/axios'; // Assuming you have an axios instance set up
+import axios from '../../api/axios'; // Ensure Axios instance is configured with baseURL
 
-// Async Thunks for role CRUD operations
-
-export const fetchRoles = createAsyncThunk('roles/fetchRoles', async (_, { rejectWithValue }) => {
-  try {
-    const response = await axios.get('/api/roles');
-    return response.data;
-  } catch (error) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to fetch roles');
+// Fetch all roles with authorization
+export const fetchRoles = createAsyncThunk(
+  'roles/fetchRoles',
+  async (_, { getState, rejectWithValue }) => {
+    const token = getState().auth.token;
+    try {
+      const response = await axios.get('/api/roles', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch roles');
+    }
   }
-});
+);
 
-export const createRole = createAsyncThunk('roles/createRole', async (roleData, { rejectWithValue }) => {
-  try {
-    const response = await axios.post('/api/roles/create', roleData);
-    return response.data;
-  } catch (error) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to create role');
+// Create a new role with authorization
+export const createRole = createAsyncThunk(
+  'roles/createRole',
+  async (roleData, { getState, rejectWithValue }) => {
+    const token = getState().auth.token;
+    try {
+      const response = await axios.post('/api/roles/create', roleData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.role;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to create role');
+    }
   }
-});
+);
 
-export const updateRole = createAsyncThunk('roles/updateRole', async ({ roleId, roleData }, { rejectWithValue }) => {
-  try {
-    const response = await axios.put(`/api/roles/update/${roleId}`, roleData);
-    return response.data;
-  } catch (error) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to update role');
+// Update an existing role with authorization
+export const updateRole = createAsyncThunk(
+  'roles/updateRole',
+  async ({ roleId, roleData }, { getState, rejectWithValue }) => {
+    const token = getState().auth.token;
+    try {
+      const response = await axios.put(`/api/roles/update/${roleId}`, roleData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.role; // Assuming the updated role object is in the `role` key
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update role');
+    }
   }
-});
+);
 
-export const deleteRole = createAsyncThunk('roles/deleteRole', async (roleId, { rejectWithValue }) => {
-  try {
-    await axios.delete(`/api/roles/${roleId}`);
-    return { id: roleId };
-  } catch (error) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to delete role');
+// Delete a role with authorization
+export const deleteRole = createAsyncThunk(
+  'roles/deleteRole',
+  async (roleId, { getState, rejectWithValue }) => {
+    const token = getState().auth.token;
+    try {
+      await axios.delete(`/api/roles/${roleId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return roleId; // Returning the deleted role ID to remove it from the Redux state
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete role');
+    }
   }
-});
+);
 
-// Slice for role state management
+// Role Slice
 const roleSlice = createSlice({
   name: 'roles',
   initialState: {
@@ -51,10 +84,9 @@ const roleSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch roles
+      // Handle fetch roles
       .addCase(fetchRoles.pending, (state) => {
         state.status = 'loading';
-        state.error = null;
       })
       .addCase(fetchRoles.fulfilled, (state, action) => {
         state.status = 'succeeded';
@@ -65,27 +97,27 @@ const roleSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Create role
+      // Handle create role
       .addCase(createRole.pending, (state) => {
         state.status = 'loading';
       })
       .addCase(createRole.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.roles.push(action.payload.role);
+        state.roles.push(action.payload);
       })
       .addCase(createRole.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       })
 
-      // Update role
+      // Handle update role
       .addCase(updateRole.pending, (state) => {
         state.status = 'loading';
       })
       .addCase(updateRole.fulfilled, (state, action) => {
-        const index = state.roles.findIndex((role) => role.id === action.payload.role.id);
+        const index = state.roles.findIndex((role) => role._id === action.payload._id);
         if (index !== -1) {
-          state.roles[index] = action.payload.role;
+          state.roles[index] = action.payload; // Update the role in the state
         }
         state.status = 'succeeded';
       })
@@ -94,12 +126,12 @@ const roleSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Delete role
+      // Handle delete role
       .addCase(deleteRole.pending, (state) => {
         state.status = 'loading';
       })
       .addCase(deleteRole.fulfilled, (state, action) => {
-        state.roles = state.roles.filter((role) => role.id !== action.payload.id);
+        state.roles = state.roles.filter((role) => role._id !== action.payload); // Remove deleted role
         state.status = 'succeeded';
       })
       .addCase(deleteRole.rejected, (state, action) => {

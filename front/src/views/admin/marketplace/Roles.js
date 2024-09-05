@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import {
+  fetchRoles,
+  createRole,
+  updateRole,
+  deleteRole
+} from 'features/role/roleSlice';
 
 const Role = () => {
-  const [roles, setRoles] = useState([]);
+  const dispatch = useDispatch();
+  const { roles, status, error } = useSelector((state) => state.roles);
+
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(null); // For editing existing roles
+  const [selectedRole, setSelectedRole] = useState(null);
   const [newRole, setNewRole] = useState({ name: '', permissions: {} });
 
-  // Placeholder for permissions per module
+  // Permissions modules, fetched from backend in a real scenario
   const modules = [
     { name: 'User', permissions: ['Manage', 'Create', 'Edit', 'Delete'] },
     { name: 'Client', permissions: ['Manage', 'Create', 'Edit', 'Delete'] },
@@ -16,24 +25,11 @@ const Role = () => {
     { name: 'Project', permissions: ['Manage', 'Create', 'Edit', 'Delete'] },
   ];
 
-  // Placeholder roles - in practice, fetch roles from API
   useEffect(() => {
-    setRoles([
-      {
-        name: 'Employee',
-        permissions: {
-          User: { Manage: true, Create: true, Edit: false, Delete: false },
-        },
-      },
-      {
-        name: 'Manager',
-        permissions: {
-          Client: { Manage: true, Create: true, Edit: true, Delete: false },
-          Project: { Manage: true, Create: true, Edit: false, Delete: false },
-        },
-      },
-    ]);
-  }, []);
+    if (status === 'idle') {
+      dispatch(fetchRoles());
+    }
+  }, [dispatch, status]);
 
   const handlePermissionChange = (module, permission) => {
     setNewRole((prev) => ({
@@ -48,34 +44,44 @@ const Role = () => {
     }));
   };
 
-  const handleCreateRole = () => {
-    // Add new role to the roles array (replace this with an API call)
-    setRoles((prev) => [...prev, newRole]);
-    setIsCreating(false);
-    setNewRole({ name: '', permissions: {} });
+  const handleCreateRole = async () => {
+    try {
+      await dispatch(createRole(newRole)).unwrap();
+      dispatch(fetchRoles());
+      setIsCreating(false);
+      setNewRole({ name: '', permissions: {} });
+    } catch (err) {
+      console.error('Error creating role:', err);
+    }
   };
 
   const handleEditRole = (role) => {
     setSelectedRole(role);
-    setNewRole(role); // Load selected role data for editing
+    setNewRole(role);
     setIsEditing(true);
   };
 
-  const handleUpdateRole = () => {
-    // Update role in roles array (replace this with an API call)
-    setRoles((prev) =>
-      prev.map((role) =>
-        role.name === selectedRole.name ? newRole : role
-      )
-    );
-    setIsEditing(false);
-    setNewRole({ name: '', permissions: {} });
-    setSelectedRole(null);
+  const handleUpdateRole = async () => {
+    try {
+      await dispatch(updateRole({ roleId: selectedRole._id, roleData: newRole })).unwrap();
+      dispatch(fetchRoles());
+      setIsEditing(false);
+      setNewRole({ name: '', permissions: {} });
+      setSelectedRole(null);
+    } catch (err) {
+      console.error('Error updating role:', err);
+    }
   };
 
-  const handleDeleteRole = (roleName) => {
-    // Delete role from roles array (replace this with an API call)
-    setRoles((prev) => prev.filter((role) => role.name !== roleName));
+  const handleDeleteRole = async (roleId) => {
+    if (window.confirm('Are you sure you want to delete this role?')) {
+      try {
+        await dispatch(deleteRole(roleId)).unwrap();
+        dispatch(fetchRoles());
+      } catch (err) {
+        console.error('Error deleting role:', err);
+      }
+    }
   };
 
   return (
@@ -86,7 +92,7 @@ const Role = () => {
           className="bg-green-500 text-white rounded-full p-2"
           onClick={() => setIsCreating(true)}
         >
-          <FaPlus className="inline" /> {/* Plus icon for creating new users */}
+          <FaPlus className="inline" /> {/* Plus icon for creating new roles */}
         </button>
       </div>
 
@@ -100,42 +106,56 @@ const Role = () => {
           </tr>
         </thead>
         <tbody>
-          {roles.map((role, index) => (
-            <tr key={index} className="border-b">
-              <td className="py-2 px-4">{role.name}</td>
-              <td className="py-2 px-4 flex flex-wrap">
-                {Object.keys(role.permissions).map((module) => (
-                  <div key={module}>
-                    <strong>{module}: </strong>
-                    {Object.keys(role.permissions[module])
-                      .filter((perm) => role.permissions[module][perm])
-                      .map((perm) => (
-                        <span
-                          key={perm}
-                          className="bg-green-100 text-green-700 rounded-full px-2 py-1 text-sm m-1"
-                        >
-                          {perm}
-                        </span>
-                      ))}
-                  </div>
-                ))}
-              </td>
-              <td className="py-2 px-4">
-                <button
-                  className="text-blue-500 mx-2"
-                  onClick={() => handleEditRole(role)}
-                >
-                  <FaEdit />
-                </button>
-                <button
-                  className="text-red-500 mx-2"
-                  onClick={() => handleDeleteRole(role.name)}
-                >
-                  <FaTrash />
-                </button>
+          {status === 'loading' ? (
+            <tr>
+              <td colSpan="3" className="py-4 px-4 text-center text-gray-600">
+                Loading...
               </td>
             </tr>
-          ))}
+          ) : roles.length > 0 ? (
+            roles.map((role) => (
+              <tr key={role._id} className="border-b">
+                <td className="py-2 px-4">{role.name}</td>
+                <td className="py-2 px-4 flex flex-wrap">
+                  {Object.keys(role.permissions).map((module) => (
+                    <div key={module}>
+                      <strong>{module}: </strong>
+                      {Object.keys(role.permissions[module])
+                        .filter((perm) => role.permissions[module][perm])
+                        .map((perm) => (
+                          <span
+                            key={perm}
+                            className="bg-green-100 text-green-700 rounded-full px-2 py-1 text-sm m-1"
+                          >
+                            {perm}
+                          </span>
+                        ))}
+                    </div>
+                  ))}
+                </td>
+                <td className="py-2 px-4">
+                  <button
+                    className="text-blue-500 mx-2"
+                    onClick={() => handleEditRole(role)}
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    className="text-red-500 mx-2"
+                    onClick={() => handleDeleteRole(role._id)}
+                  >
+                    <FaTrash />
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="3" className="py-4 px-4 text-center text-gray-600">
+                No roles found.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
 
@@ -194,6 +214,8 @@ const Role = () => {
                 onClick={() => {
                   setIsCreating(false);
                   setIsEditing(false);
+                  setNewRole({ name: '', permissions: {} });
+                  setSelectedRole(null);
                 }}
                 className="bg-red-500 text-white px-4 py-2 rounded mr-2"
               >
@@ -207,6 +229,13 @@ const Role = () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Error Display */}
+      {error && (
+        <div className="mt-4 p-4 bg-red-100 text-red-500">
+          Error: {error}
         </div>
       )}
     </div>

@@ -7,10 +7,6 @@ const RoleSchema = new Schema({
         required: true,
         unique: true
     },
-    permissions: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Permission'
-    }],
     created_at: {
         type: Date,
         default: Date.now

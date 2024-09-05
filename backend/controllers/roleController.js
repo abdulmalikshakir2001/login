@@ -1,6 +1,8 @@
 const Role = require('../models/Role.js');
 const Permission = require('../models/Permission.js');
+const RoleHasPermissions = require('../models/RoleHasPermissions.js');
 
+// Create a role
 exports.createRole = async (req, res) => {
     const { name, permissions } = req.body;
 
@@ -10,15 +12,30 @@ exports.createRole = async (req, res) => {
             return res.status(400).json({ msg: 'Role already exists' });
         }
 
-        role = new Role({
-            name,
-            permissions
+        role = new Role({ name });
+        await role.save();
+
+        if (permissions && permissions.length > 0) {
+            for (const permissionId of permissions) {
+                await RoleHasPermissions.create({
+                    role_id: role._id,
+                    permission_id: permissionId
+                });
+            }
+        }
+
+        const populatedRole = await Role.findById(role._id).populate({
+            path: 'permissions',
+            model: 'RoleHasPermissions',
+            populate: {
+                path: 'permission_id',
+                model: 'Permission'
+            }
         });
 
-        await role.save();
         res.status(201).json({
             msg: 'Role created successfully',
-            role
+            role: populatedRole
         });
     } catch (err) {
         console.error(err.message);
@@ -26,6 +43,7 @@ exports.createRole = async (req, res) => {
     }
 };
 
+// Update a role
 exports.updateRole = async (req, res) => {
     const { roleId, permissions } = req.body;
 
@@ -35,11 +53,29 @@ exports.updateRole = async (req, res) => {
             return res.status(404).json({ msg: 'Role not found' });
         }
 
-        role.permissions = permissions;
-        await role.save();
+        await RoleHasPermissions.deleteMany({ role_id: roleId });
+
+        if (permissions && permissions.length > 0) {
+            for (const permissionId of permissions) {
+                await RoleHasPermissions.create({
+                    role_id: role._id,
+                    permission_id: permissionId
+                });
+            }
+        }
+
+        const updatedRole = await Role.findById(roleId).populate({
+            path: 'permissions',
+            model: 'RoleHasPermissions',
+            populate: {
+                path: 'permission_id',
+                model: 'Permission'
+            }
+        });
+
         res.status(200).json({
             msg: 'Role updated successfully',
-            role
+            role: updatedRole
         });
     } catch (err) {
         console.error(err.message);
@@ -47,9 +83,17 @@ exports.updateRole = async (req, res) => {
     }
 };
 
+// Get all roles
 exports.getRoles = async (req, res) => {
     try {
-        const roles = await Role.find().populate('permissions');
+        const roles = await Role.find().populate({
+            path: 'permissions',
+            model: 'RoleHasPermissions',
+            populate: {
+                path: 'permission_id',
+                model: 'Permission'
+            }
+        });
         res.status(200).json(roles);
     } catch (err) {
         console.error(err.message);
@@ -57,9 +101,17 @@ exports.getRoles = async (req, res) => {
     }
 };
 
+// Get a single role by ID
 exports.getRoleById = async (req, res) => {
     try {
-        const role = await Role.findById(req.params.id).populate('permissions');
+        const role = await Role.findById(req.params.id).populate({
+            path: 'permissions',
+            model: 'RoleHasPermissions',
+            populate: {
+                path: 'permission_id',
+                model: 'Permission'
+            }
+        });
         if (!role) {
             return res.status(404).json({ msg: 'Role not found' });
         }
@@ -70,6 +122,7 @@ exports.getRoleById = async (req, res) => {
     }
 };
 
+// Delete a role
 exports.deleteRole = async (req, res) => {
     try {
         const role = await Role.findById(req.params.id);
@@ -77,7 +130,9 @@ exports.deleteRole = async (req, res) => {
             return res.status(404).json({ msg: 'Role not found' });
         }
 
+        await RoleHasPermissions.deleteMany({ role_id: role._id });
         await role.remove();
+
         res.status(200).json({ msg: 'Role removed' });
     } catch (err) {
         console.error(err.message);

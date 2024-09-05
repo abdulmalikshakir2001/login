@@ -8,7 +8,7 @@ export const fetchPermissions = createAsyncThunk(
     try {
       const response = await axios.get('/api/permissions/', {
         headers: {
-          Authorization: `Bearer ${token}`, // Add token to headers
+          Authorization: `Bearer ${token}`,
         },
       });
       return response.data;
@@ -18,7 +18,6 @@ export const fetchPermissions = createAsyncThunk(
   }
 );
 
-// Create Permission
 export const createPermission = createAsyncThunk(
   'permissions/createPermission',
   async (permissionData, { getState, rejectWithValue }) => {
@@ -26,7 +25,7 @@ export const createPermission = createAsyncThunk(
     try {
       const response = await axios.post('/api/permissions/create', permissionData, {
         headers: {
-          Authorization: `Bearer ${token}`, // Add token to headers
+          Authorization: `Bearer ${token}`, 
         },
       });
       return response.data;
@@ -39,12 +38,11 @@ export const createPermission = createAsyncThunk(
 export const updatePermission = createAsyncThunk(
   'permissions/updatePermission',
   async ({ permissionId, permissionData }, { getState, rejectWithValue }) => {
-    const token = getState().auth.token; // Get the token from the auth state
+    const token = getState().auth.token; 
     try {
-      // Make sure the ID is part of the URL
       const response = await axios.put(`/api/permissions/update/${permissionId}`, permissionData, {
         headers: {
-          Authorization: `Bearer ${token}`, // Add token to headers
+          Authorization: `Bearer ${token}`,
         },
       });
       return response.data;
@@ -55,15 +53,14 @@ export const updatePermission = createAsyncThunk(
 );
 
 
-// Delete Permission
 export const deletePermission = createAsyncThunk(
   'permissions/deletePermission',
   async (permissionId, { getState, rejectWithValue }) => {
-    const token = getState().auth.token; // Get the token from the auth state
+    const token = getState().auth.token; 
     try {
       await axios.delete(`/api/permissions/${permissionId}`, {
         headers: {
-          Authorization: `Bearer ${token}`, // Add token to headers
+          Authorization: `Bearer ${token}`, 
         },
       });
       return { id: permissionId };
@@ -73,7 +70,6 @@ export const deletePermission = createAsyncThunk(
   }
 );
 
-// Permission slice
 const permissionSlice = createSlice({
   name: 'permissions',
   initialState: {
