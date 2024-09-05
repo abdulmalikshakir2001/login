@@ -28,7 +28,8 @@ const Permission = () => {
     const handleCreatePermission = async (e) => {
         e.preventDefault();
         try {
-            await dispatch(createPermission(newPermission)).unwrap(); // Use unwrap to throw errors
+            await dispatch(createPermission(newPermission)).unwrap(); // Create new permission
+            dispatch(fetchPermissions()); // Fetch updated permissions after creation
             setIsCreating(false);
             setNewPermission({ name: '', module: '' });
         } catch (err) {
@@ -48,6 +49,7 @@ const Permission = () => {
         e.preventDefault();
         try {
             await dispatch(updatePermission({ permissionId: selectedPermission._id, permissionData: newPermission })).unwrap();
+            dispatch(fetchPermissions()); // Fetch updated permissions after updating
             setIsEditing(false);
             setNewPermission({ name: '', module: '' });
             setSelectedPermission(null);
@@ -60,7 +62,8 @@ const Permission = () => {
     const handleDeletePermission = async (permissionId) => {
         if (window.confirm('Are you sure you want to delete this permission?')) {
             try {
-                await dispatch(deletePermission(permissionId)).unwrap(); // Use unwrap to handle promise
+                await dispatch(deletePermission(permissionId)).unwrap(); // Delete permission
+                dispatch(fetchPermissions()); // Fetch updated permissions after deletion
             } catch (err) {
                 console.error('Error deleting permission:', err);
             }

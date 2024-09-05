@@ -10,7 +10,7 @@ const {
 const authMiddleware = require('../middleware/authMiddleware.js');
 
 router.post('/create', authMiddleware, createPermission);
-router.put('/update', authMiddleware, updatePermission);
+router.put('/update/:id', authMiddleware, updatePermission);
 router.get('/', authMiddleware, getPermissions);
 router.get('/:id', authMiddleware, getPermissionById);
 router.delete('/:id', authMiddleware, deletePermission);

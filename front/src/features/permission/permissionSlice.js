@@ -36,12 +36,12 @@ export const createPermission = createAsyncThunk(
   }
 );
 
-// Update Permission
 export const updatePermission = createAsyncThunk(
   'permissions/updatePermission',
   async ({ permissionId, permissionData }, { getState, rejectWithValue }) => {
     const token = getState().auth.token; // Get the token from the auth state
     try {
+      // Make sure the ID is part of the URL
       const response = await axios.put(`/api/permissions/update/${permissionId}`, permissionData, {
         headers: {
           Authorization: `Bearer ${token}`, // Add token to headers
@@ -53,6 +53,7 @@ export const updatePermission = createAsyncThunk(
     }
   }
 );
+
 
 // Delete Permission
 export const deletePermission = createAsyncThunk(
