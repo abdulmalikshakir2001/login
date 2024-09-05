@@ -1,11 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../api/axios';
 
-// Fetch Permissions
 export const fetchPermissions = createAsyncThunk(
   'permissions/fetchPermissions',
   async (_, { getState, rejectWithValue }) => {
-    const token = getState().auth.token; // Get the token from the auth state
+    const token = getState().auth.token; 
     try {
       const response = await axios.get('/api/permissions/', {
         headers: {
@@ -23,7 +22,7 @@ export const fetchPermissions = createAsyncThunk(
 export const createPermission = createAsyncThunk(
   'permissions/createPermission',
   async (permissionData, { getState, rejectWithValue }) => {
-    const token = getState().auth.token; // Get the token from the auth state
+    const token = getState().auth.token;
     try {
       const response = await axios.post('/api/permissions/create', permissionData, {
         headers: {
